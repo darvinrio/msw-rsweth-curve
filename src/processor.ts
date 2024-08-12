@@ -35,7 +35,7 @@ const addLiquidityHandler = async function (
     const rswETH_amt = event.args.token_amounts[1].scaleDown(18);
 
     mswETH_bal_acc.add(ctx, mswETH_amt, { token: "mswETH" });
-    rswETH_bal_acc.add(ctx, rswETH_amt, { token: "mswETH" });
+    rswETH_bal_acc.add(ctx, rswETH_amt, { token: "rswETH" });
 };
 
 const removeLiquidityHandler = async function (
@@ -46,7 +46,7 @@ const removeLiquidityHandler = async function (
     const rswETH_amt = event.args.token_amounts[1].scaleDown(18);
 
     mswETH_bal_acc.sub(ctx, mswETH_amt, { token: "mswETH" });
-    rswETH_bal_acc.sub(ctx, rswETH_amt, { token: "mswETH" });
+    rswETH_bal_acc.sub(ctx, rswETH_amt, { token: "rswETH" });
 };
 
 const tokenExchangeHandler = async function (
