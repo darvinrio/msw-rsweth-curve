@@ -81,4 +81,5 @@ CurveStableSwapNGProcessor.bind({
 })
     .onEventAddLiquidity(addLiquidityHandler)
     .onEventRemoveLiquidity(removeLiquidityHandler)
-    .onEventTokenExchange(tokenExchangeHandler);
+    .onEventTokenExchange(tokenExchangeHandler)
+    .onBlockInterval(blockHandler)
