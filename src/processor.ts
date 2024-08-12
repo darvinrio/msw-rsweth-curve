@@ -7,6 +7,8 @@ import {
     AddLiquidityEvent,
     RemoveLiquidityEvent,
     TokenExchangeEvent,
+    RemoveLiquidityImbalanceEvent,
+    RemoveLiquidityOneEvent,
 } from "./types/eth/curvestableswapng.js";
 
 import { RswETHContext } from "./types/eth/rsweth.js";
@@ -49,6 +51,32 @@ const removeLiquidityHandler = async function (
     rswETH_bal_acc.sub(ctx, rswETH_amt, { token: "rswETH" });
 };
 
+const removeLiquidityImbalanceHandler = async function (
+    event: RemoveLiquidityImbalanceEvent,
+    ctx: CurveStableSwapNGContext
+) {
+    const mswETH_amt = event.args.token_amounts[0].scaleDown(18);
+    const rswETH_amt = event.args.token_amounts[1].scaleDown(18);
+
+    mswETH_bal_acc.sub(ctx, mswETH_amt, { token: "mswETH" });
+    rswETH_bal_acc.sub(ctx, rswETH_amt, { token: "rswETH" });
+};
+
+const removeLiquidityOneHandler = async function (
+    event: RemoveLiquidityOneEvent,
+    ctx: CurveStableSwapNGContext
+) {
+    
+    let mswETH_amt, rswETH_amt;
+    if (event.args.token_id === BigInt(0)) {
+        mswETH_amt = event.args.coin_amount.scaleDown(18);
+        mswETH_bal_acc.add(ctx, mswETH_amt, { token: "mswETH" });
+    } else {
+        rswETH_amt = event.args.coin_amount.scaleDown(18);
+        rswETH_bal_acc.add(ctx, rswETH_amt, { token: "rswETH" });
+    }
+};
+
 const tokenExchangeHandler = async function (
     event: TokenExchangeEvent,
     ctx: CurveStableSwapNGContext
@@ -82,5 +110,7 @@ CurveStableSwapNGProcessor.bind({
 })
     .onEventAddLiquidity(addLiquidityHandler)
     .onEventRemoveLiquidity(removeLiquidityHandler)
+    .onEventRemoveLiquidityImbalance(removeLiquidityImbalanceHandler)
+    .onEventRemoveLiquidityOne(removeLiquidityOneHandler)
     .onEventTokenExchange(tokenExchangeHandler)
     .onBlockInterval(blockHandler);
