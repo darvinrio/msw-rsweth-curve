@@ -12,12 +12,20 @@ import {
 import { RswETHContext } from "./types/eth/rsweth.js";
 import { MswETHContext } from "./types/eth/msweth.js";
 
-import { rswETH, mswETH, msw_rswETH_curve } from "./util.js";
+import {
+    rswETH,
+    mswETH,
+    msw_rswETH_curve,
+    msw_rswETH_curve_start_block,
+} from "./util.js";
 
 //////////////////////////////
 
-const rswETH_bal_acc = Counter.register("rswETH_bal");
-const mswETH_bal_acc = Counter.register("mswETH_bal");
+const rswETH_bal_acc = Counter.register("rswETH_bal_acc");
+const mswETH_bal_acc = Counter.register("mswETH_bal_acc");
+
+const rswETH_bal = Gauge.register("rswETH_bal");
+const mswETH_bal = Gauge.register("mswETH_bal");
 
 const addLiquidityHandler = async function (
     event: AddLiquidityEvent,
@@ -55,10 +63,22 @@ const tokenExchangeHandler = async function (
     }
 
     mswETH_bal_acc.sub(ctx, mswETH_amt, { token: "mswETH" });
-    rswETH_bal_acc.sub(ctx, rswETH_amt, { token: "mswETH" });
+    rswETH_bal_acc.sub(ctx, rswETH_amt, { token: "rswETH" });
 };
 
-CurveStableSwapNGProcessor.bind({ address: msw_rswETH_curve })
+const blockHandler = async function (_: any, ctx: CurveStableSwapNGContext) {
+    const [mswETH_bal_amt, rswETH_bal_amt] = (
+        await ctx.contract.get_balances()
+    ).flatMap((e) => e.scaleDown(18));
+
+    mswETH_bal.record(ctx, mswETH_bal_amt, { token: "mswETH" });
+    rswETH_bal.record(ctx, rswETH_bal_amt, { token: "rswETH" });
+};
+
+CurveStableSwapNGProcessor.bind({
+    address: msw_rswETH_curve,
+    startBlock: msw_rswETH_curve_start_block,
+})
     .onEventAddLiquidity(addLiquidityHandler)
     .onEventRemoveLiquidity(removeLiquidityHandler)
     .onEventTokenExchange(tokenExchangeHandler);
