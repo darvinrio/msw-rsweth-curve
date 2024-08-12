@@ -70,10 +70,10 @@ const removeLiquidityOneHandler = async function (
     let mswETH_amt, rswETH_amt;
     if (event.args.token_id === BigInt(0)) {
         mswETH_amt = event.args.coin_amount.scaleDown(18);
-        mswETH_bal_acc.add(ctx, mswETH_amt, { token: "mswETH" });
+        mswETH_bal_acc.sub(ctx, mswETH_amt, { token: "mswETH" });
     } else {
         rswETH_amt = event.args.coin_amount.scaleDown(18);
-        rswETH_bal_acc.add(ctx, rswETH_amt, { token: "rswETH" });
+        rswETH_bal_acc.sub(ctx, rswETH_amt, { token: "rswETH" });
     }
 };
 
