@@ -57,13 +57,14 @@ const tokenExchangeHandler = async function (
     if (event.args.sold_id === BigInt(0)) {
         mswETH_amt = event.args.tokens_sold.scaleDown(18);
         rswETH_amt = event.args.tokens_bought.scaleDown(18);
+        mswETH_bal_acc.add(ctx, mswETH_amt, { token: "mswETH" });
+        rswETH_bal_acc.sub(ctx, rswETH_amt, { token: "rswETH" });
     } else {
         mswETH_amt = event.args.tokens_bought.scaleDown(18);
         rswETH_amt = event.args.tokens_sold.scaleDown(18);
+        mswETH_bal_acc.sub(ctx, mswETH_amt, { token: "mswETH" });
+        rswETH_bal_acc.add(ctx, rswETH_amt, { token: "rswETH" });
     }
-
-    mswETH_bal_acc.sub(ctx, mswETH_amt, { token: "mswETH" });
-    rswETH_bal_acc.sub(ctx, rswETH_amt, { token: "rswETH" });
 };
 
 const blockHandler = async function (_: any, ctx: CurveStableSwapNGContext) {
@@ -82,4 +83,4 @@ CurveStableSwapNGProcessor.bind({
     .onEventAddLiquidity(addLiquidityHandler)
     .onEventRemoveLiquidity(removeLiquidityHandler)
     .onEventTokenExchange(tokenExchangeHandler)
-    .onBlockInterval(blockHandler)
+    .onBlockInterval(blockHandler);
