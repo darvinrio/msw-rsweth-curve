@@ -15,7 +15,7 @@ import {
     rswETH,
     mswETH,
     msw_rswETH_CURVE_LPT,
-    msw_rswETH_CURVE_start_block
+    msw_rswETH_CURVE_start_block,
 } from "./constants.js";
 import { getEthExchangeRate } from "./oracle.js";
 
