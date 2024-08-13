@@ -110,7 +110,7 @@ async function processAccount(
     );
     const [pearls, elPoints] = accountSnapshot
         ? await calcPoints(ctx, accountSnapshot)
-        : [new BigDecimal(0), new BigDecimal(0), new BigDecimal(0)];
+        : [new BigDecimal(0), new BigDecimal(0)];
 
     const latestAccountSnapshot = await getLatestAccountSnapshot(
         ctx,
@@ -175,7 +175,6 @@ async function calcPoints(
         BigInt(poolMswEthBalance).scaleDown(TOKEN_DECIMALS)
     );
 
-    // TODO: replace to MswEth price
     const ethPrice = await getPriceBySymbol("ETH", ctx.timestamp);
     const mswETH_exchangeRate = await getEthExchangeRate(ctx, mswETH);
     const rswETH_exchangeRate = await getEthExchangeRate(ctx, rswETH);
@@ -189,19 +188,19 @@ async function calcPoints(
 
     const RswPearls = accountRswEthBalance
         // .multipliedBy(deltaHour)
-        .multipliedBy(deltaDate)
-        // .multipliedBy(ethPrice)
         .multipliedBy(rswETH_exchangeRate)
         .multipliedBy(PEARL_PER_ETH_PER_DAY)
-        .multipliedBy(MELLOW_MULTIPLIER);
+        .multipliedBy(deltaDate)
+        // .multipliedBy(ethPrice)
+        // .multipliedBy(MELLOW_MULTIPLIER);
 
     const MswPearls = accountMswEthBalance
         // .multipliedBy(deltaHour)
-        .multipliedBy(deltaDate)
-        // .multipliedBy(ethPrice)
         .multipliedBy(mswETH_exchangeRate)
         .multipliedBy(PEARL_PER_ETH_PER_DAY)
-        .multipliedBy(MELLOW_MULTIPLIER);
+        .multipliedBy(deltaDate)
+        // .multipliedBy(ethPrice)
+        // .multipliedBy(MELLOW_MULTIPLIER);
 
     const pearls = RswPearls.plus(MswPearls);
 
