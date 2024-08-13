@@ -14,8 +14,8 @@ import {
 import {
     rswETH,
     mswETH,
-    msw_rswETH_CURVE_LPT,
-    msw_rswETH_CURVE_start_block,
+    POOL_ADDRESS,
+    POOL_START_BLOCK,
 } from "./constants.js";
 import { getEthExchangeRate } from "./oracle.js";
 
@@ -128,8 +128,8 @@ const blockHandler = async function (_: any, ctx: CurveStableSwapNGContext) {
 };
 
 CurveStableSwapNGProcessor.bind({
-    address: msw_rswETH_CURVE_LPT,
-    startBlock: msw_rswETH_CURVE_start_block,
+    address: POOL_ADDRESS,
+    startBlock: POOL_START_BLOCK,
 })
     .onEventAddLiquidity(addLiquidityHandler)
     .onEventRemoveLiquidity(removeLiquidityHandler)

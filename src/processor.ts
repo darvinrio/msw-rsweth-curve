@@ -17,11 +17,12 @@ import {
     NETWORK,
     POINTS_PER_HOUR,
     POOL_ADDRESS,
+    POOL_START_BLOCK,
     PEARL_PER_ETH_PER_DAY,
     EL_PER_RSW_PER_DAY,
-} from "./config.js";
-
-import { rswETH, mswETH } from "./constants.js";
+    rswETH,
+    mswETH,
+} from "./constants.js";
 
 import { getEthExchangeRate } from "./oracle.js";
 
@@ -38,6 +39,7 @@ const EL_Points = Counter.register("el_points");
 
 CurveStableSwapNGProcessor.bind({
     address: POOL_ADDRESS,
+    startBlock: POOL_START_BLOCK,
     network: NETWORK,
 })
     .onEventAddLiquidity(async (event, ctx) => {
@@ -209,7 +211,7 @@ async function calcPoints(
         // .multipliedBy(ethPrice)
         .multipliedBy(EL_PER_RSW_PER_DAY);
 
-    Pearls.add(ctx, pearls, );
+    Pearls.add(ctx, pearls);
     EL_Points.add(ctx, elPoints);
 
     return [pearls, elPoints];
