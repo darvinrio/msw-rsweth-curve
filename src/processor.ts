@@ -1,7 +1,7 @@
 import { AccountSnapshot } from "./schema/schema.js";
 
 import { GLOBAL_CONFIG } from "@sentio/runtime";
-import { BigDecimal } from "@sentio/sdk";
+import { BigDecimal, Counter, Gauge } from "@sentio/sdk";
 import { EthChainId, isNullAddress } from "@sentio/sdk/eth";
 import { getPriceBySymbol } from "@sentio/sdk/utils";
 
@@ -32,6 +32,9 @@ const TOKEN_DECIMALS = 18;
 GLOBAL_CONFIG.execution = {
     sequential: true,
 };
+
+const Pearls = Counter.register("pearls");
+const EL_Points = Counter.register("el_points");
 
 CurveStableSwapNGProcessor.bind({
     address: POOL_ADDRESS,
@@ -198,13 +201,16 @@ async function calcPoints(
         .multipliedBy(PEARL_PER_ETH_PER_DAY)
         .multipliedBy(MELLOW_MULTIPLIER);
 
-    const pearls = RswPearls.plus(MswPearls)
+    const pearls = RswPearls.plus(MswPearls);
 
     const elPoints = accountRswEthBalance
         // .multipliedBy(deltaHour)
         .multipliedBy(deltaDate)
         // .multipliedBy(ethPrice)
         .multipliedBy(EL_PER_RSW_PER_DAY);
+
+    Pearls.add(ctx, pearls, );
+    EL_Points.add(ctx, elPoints);
 
     return [pearls, elPoints];
 }
