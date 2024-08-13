@@ -16,7 +16,7 @@ export async function getEthExchangeRate(
         ).scaleDown(18);
     }
 
-    if (token === rswETH) {
+    if (token === mswETH) {
         return (
             await getMswETHContractOnContext(ctx, mswETH).exchangeRateToNative()
         ).scaleDown(18);
