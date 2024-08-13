@@ -11,7 +11,8 @@
     "postinstall": "sentio gen"
   },
   "dependencies": {
-    "@sentio/sdk": "^2.41.1"
+    "@sentio/sdk": "^2.41.1",
+    "nedb-async": "^0.1.6"
   },
   "devDependencies": {
     "@sentio/cli": "^2.20.1",
