@@ -11,20 +11,24 @@ import {
     RemoveLiquidityOneEvent,
 } from "./types/eth/curvestableswapng.js";
 
-import { RswETHContext } from "./types/eth/rsweth.js";
-import { MswETHContext } from "./types/eth/msweth.js";
-
 import {
     rswETH,
     mswETH,
     msw_rswETH_curve,
     msw_rswETH_curve_start_block,
-} from "./util.js";
+} from "./constants.js";
+import { getEthExchangeRate } from "./oracle.js";
 
 //////////////////////////////
 
 const rswETH_bal_acc = Counter.register("rswETH_bal_acc");
 const mswETH_bal_acc = Counter.register("mswETH_bal_acc");
+
+const rswETH_usd_acc = Gauge.register("rswETH_usd_acc");
+const mswETH_usd_acc = Gauge.register("mswETH_usd_acc");
+
+const rswETH_rate = Gauge.register("rswETH_rate");
+const mswETH_rate = Gauge.register("mswETH_rate");
 
 const rswETH_bal = Gauge.register("rswETH_bal");
 const mswETH_bal = Gauge.register("mswETH_bal");
@@ -66,7 +70,6 @@ const removeLiquidityOneHandler = async function (
     event: RemoveLiquidityOneEvent,
     ctx: CurveStableSwapNGContext
 ) {
-    
     let mswETH_amt, rswETH_amt;
     if (event.args.token_id === BigInt(0)) {
         mswETH_amt = event.args.coin_amount.scaleDown(18);
@@ -93,6 +96,12 @@ const tokenExchangeHandler = async function (
         mswETH_bal_acc.sub(ctx, mswETH_amt, { token: "mswETH" });
         rswETH_bal_acc.add(ctx, rswETH_amt, { token: "rswETH" });
     }
+
+    const mswETH_exchangeRate = await getEthExchangeRate(ctx, mswETH);
+    const rswETH_exchangeRate = await getEthExchangeRate(ctx, rswETH);
+
+    mswETH_rate.record(ctx, mswETH_exchangeRate, { token: "mswETH" });
+    rswETH_rate.record(ctx, rswETH_exchangeRate, { token: "rswETH" });
 };
 
 const blockHandler = async function (_: any, ctx: CurveStableSwapNGContext) {
@@ -102,6 +111,20 @@ const blockHandler = async function (_: any, ctx: CurveStableSwapNGContext) {
 
     mswETH_bal.record(ctx, mswETH_bal_amt, { token: "mswETH" });
     rswETH_bal.record(ctx, rswETH_bal_amt, { token: "rswETH" });
+
+    const mswETH_exchangeRate = await getEthExchangeRate(ctx, mswETH);
+    const rswETH_exchangeRate = await getEthExchangeRate(ctx, rswETH);
+
+    mswETH_usd_acc.record(
+        ctx,
+        mswETH_bal_amt.multipliedBy(mswETH_exchangeRate),
+        { token: "rswETH" }
+    );
+    rswETH_usd_acc.record(
+        ctx,
+        rswETH_bal_amt.multipliedBy(rswETH_exchangeRate),
+        { token: "mswETH" }
+    );
 };
 
 CurveStableSwapNGProcessor.bind({
