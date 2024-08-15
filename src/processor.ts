@@ -60,14 +60,32 @@ CurveStableSwapNGProcessor.bind({
             accounts.map((account) => processAccount(ctx, account, event.name))
         );
     })
+    .onEventRemoveLiquidityImbalance(async (event, ctx) => {
+        const accountAddress = event.args.provider;
+        const accounts = [accountAddress].filter(
+            (account) => !isNullAddress(account)
+        );
+        await Promise.all(
+            accounts.map((account) => processAccount(ctx, account, event.name))
+        );
+    })
+    .onEventRemoveLiquidityOne(async (event, ctx) => {
+        const accountAddress = event.args.provider;
+        const accounts = [accountAddress].filter(
+            (account) => !isNullAddress(account)
+        );
+        await Promise.all(
+            accounts.map((account) => processAccount(ctx, account, event.name))
+        );
+    })
     .onEventTokenExchange(async (event, ctx) => {
         const accountSnapshots = await ctx.store.list(AccountSnapshot, []);
         await Promise.all(
             accountSnapshots.map((snapshot) => {
                 //check corresponding pool only
-                if (snapshot.id.includes(ctx.address))
-                    return processAccount(ctx, snapshot.id, "TimeInterval");
-                return Promise.resolve();
+                // if (snapshot.id.includes(ctx.address))
+                    return processAccount(ctx, snapshot.id, event.name);
+                // return Promise.resolve();
             })
         );
     })
@@ -89,9 +107,9 @@ CurveStableSwapNGProcessor.bind({
             await Promise.all(
                 accountSnapshots.map((snapshot) => {
                     //check corresponding pool only
-                    if (snapshot.id.includes(ctx.address))
+                    // if (snapshot.id.includes(ctx.address))
                         return processAccount(ctx, snapshot.id, "TimeInterval");
-                    return Promise.resolve();
+                    // return Promise.resolve();
                 })
             );
         },
